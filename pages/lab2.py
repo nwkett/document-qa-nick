@@ -23,6 +23,19 @@ def extract_text_from_pdf(pdf_file):
         text += page.get_text()
     return text
 
+# side bar controls
+
+summary_selection = st.sidebar.radio(
+    "Choose summary format:",
+    [
+        "100-word summary",
+        "Two connected paragraphs",
+        "Five bullet points",
+    ],
+)
+
+use_advanced_model = st.sidebar.checkbox("Use advanced model (4o)")
+
 # Show title and description.
 st.title("Nick's document question answering")
 st.write(
@@ -72,28 +85,50 @@ if openai_api_key:
         disabled=not uploaded_file,
     )
 
-    if uploaded_file and question:
+    if uploaded_file:
 
         # Process the uploaded file and question.
         file_extension = uploaded_file.name.split('.')[-1]
         if file_extension == 'txt':
-            document = uploaded_file.read().decode()
+            document_text = uploaded_file.read().decode()
         elif file_extension == 'pdf':
-            document = extract_text_from_pdf(uploaded_file)
+            document_text = extract_text_from_pdf(uploaded_file)
         else:
             st.error("Unsupported file type.")
             st.stop()
 
+    model_name = "gpt-4o" if use_advanced_model else "gpt-4o-mini"
+
+    if summary_selection == "100-word summary":
+        effective_question = (
+            "Summarize the document in 100 words. "
+        )
+
+    elif summary_selection == "Two connected paragraphs":
+        effective_question = (
+            "Summarize the document in two connected paragraphs."
+        )
+
+    elif summary_selection == "Five bullet points":
+        effective_question = (
+            "Summarize the document in exactly five bullet points. "
+            "Each bullet should capture one key idea."
+        )
+
+    else:
+        effective_question = question
+
+
         messages = [
             {
                 "role": "user",
-                "content": f"Here's a document: {document} \n\n---\n\n {question}",
+                "content": f"Here's a document: {document_text} \n\n---\n\n {effective_question}",
             }
         ]
 
         # Generate an answer using the OpenAI API.
         stream = client.chat.completions.create(
-            model="gpt-5-chat-latest",
+            model=model_name,
             messages=messages,
             stream=True,
         )
