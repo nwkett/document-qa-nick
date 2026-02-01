@@ -23,7 +23,7 @@ def extract_text_from_pdf(pdf_file):
         text += page.get_text()
     return text
 
-# side bar controls
+# Side bar controls
 
 summary_selection = st.sidebar.radio(
     "Choose summary format:",
@@ -43,9 +43,6 @@ st.write(
     "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 
 openai_api_key = st.secrets.get("OPENAI_API_KEY")
 if not openai_api_key:
