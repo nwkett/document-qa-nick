@@ -116,19 +116,19 @@ if openai_api_key:
         effective_question = question
 
 
-        messages = [
-            {
-                "role": "user",
-                "content": f"Here's a document: {document_text} \n\n---\n\n {effective_question}",
-            }
-        ]
+    messages = [
+        {
+            "role": "user",
+            "content": f"Here's a document: {document_text} \n\n---\n\n {effective_question}",
+        }
+    ]
 
-        # Generate an answer using the OpenAI API.
-        stream = client.chat.completions.create(
-            model=model_name,
-            messages=messages,
-            stream=True,
-        )
+    # Generate an answer using the OpenAI API.
+    stream = client.chat.completions.create(
+        model=model_name,
+        messages=messages,
+        stream=True,
+    )
 
-        # Stream the response to the app using `st.write_stream`.
-        st.write_stream(stream)
+    # Stream the response to the app using `st.write_stream`.
+    st.write_stream(stream)
