@@ -1,7 +1,7 @@
 import streamlit as st
 from openai import OpenAI, AuthenticationError
 
-#initial empty messages
+
 st.title('Nicks Lab3 Question answering chatbot')
 
 openAI_model = st.sidebar.selectbox("Select Model", ('mini', 'regular'))
