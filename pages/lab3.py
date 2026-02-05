@@ -4,7 +4,7 @@ from openai import OpenAI, AuthenticationError
 #initial empty messages
 st.title('Nicks Lab3 Question answering chatbot')
 
-openAI_model = st.sidebar("Select Model", ('mini', 'regular'))
+openAI_model = st.sidebar.selectbox("Select Model", ('mini', 'regular'))
 
 if openAI_model == 'mini':
     model_to_use = "gpt-4o-mini"
