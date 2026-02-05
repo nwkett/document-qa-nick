@@ -29,6 +29,14 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+        MAX_HISTORY = 4  # 2 user + 2 assistant messages
+
+    if len(st.session_state.messages) > 1 + MAX_HISTORY:
+        st.session_state.messages = (
+            st.session_state.messages[:1] +   # keep initial assistant message
+            st.session_state.messages[-MAX_HISTORY:]
+        )
+
     client = st.session_state.client
     stream = client.chat.completions.create(
         model = model_to_use,
