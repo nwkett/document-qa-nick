@@ -29,7 +29,8 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-        MAX_HISTORY = 4  # 2 user + 2 assistant messages
+
+    MAX_HISTORY = 4  # 2 user + 2 assistant messages
 
     if len(st.session_state.messages) > 1 + MAX_HISTORY:
         st.session_state.messages = (
