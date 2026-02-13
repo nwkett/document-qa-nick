@@ -25,7 +25,6 @@ def extract_text_from_pdf(pdf_path):
 
 
 def add_to_collection(collection, text, file_name):
-    """Add a document to the ChromaDB collection with OpenAI embeddings"""
     try:
 
         client = st.session_state.openai_client
@@ -51,7 +50,6 @@ def add_to_collection(collection, text, file_name):
 
 
 def load_pdfs_to_collection(folder_path, collection):
-    """Load all PDFs from folder into the collection"""
 
     if collection.count() == 0:
         pdf_files = list(Path(folder_path).glob("*.pdf"))
