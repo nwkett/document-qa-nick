@@ -104,7 +104,7 @@ def apply_buffer():
 
 
 
-st.title('Lab 4')
+st.title('Nicks Lab 4')
 
 # Sidebar
 openAI_model = st.sidebar.selectbox("Select Model", ('mini', 'regular'))
@@ -114,38 +114,84 @@ if openAI_model == 'mini':
 else:
     model_to_use = 'gpt-4o'
 
-#### QUERYING A COLLECTION -- ONLY USED FOR TESTING ####
-# Comment this out after testing and implement your chatbot below
 
-topic = st.sidebar.text_input('Topic', placeholder='Type your topic (e.g., GenAI)...')
 
-if topic:
+# Lab 3 chat bot 
+
+SYSTEM_PROMPT = """
+You are a helpful course information assistant for Syracuse University's School of Information Studies that utilizes the loaded PDFs.
+
+When answering questions:
+1. If you use information from the course materials provided in the context, clearly state: "Based on this course's course materials..."
+2. If you're answering from general knowledge (not from the provided PDFs), clearly state: "Based on my general knowledge..." or "I don't have specific information about this in the course materials, but..."
+3. Be concise and helpful
+4. If you're unsure or don't have information in the provided materials, say so clearly
+"""
+
+if 'messages' not in st.session_state:
+    st.session_state.messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "assistant", "content": "Hi! I'm your course information assistant. Ask me anything about the Syracuse iSchool courses!"}
+    ]
+
+for msg in st.session_state.messages:
+    if msg["role"] == "system":
+        continue
+    chat_msg = st.chat_message(msg["role"])
+    chat_msg.write(msg["content"])
+
+if prompt := st.chat_input("Ask about course topics..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
     client = st.session_state.openai_client
+    collection = st.session_state.Lab4_VectorDB
+    
     response = client.embeddings.create(
-        input=topic,
+        input=prompt,
         model='text-embedding-3-small'
     )
-    
-
     query_embedding = response.data[0].embedding
     
-    collection = st.session_state.Lab4_VectorDB
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=3  
     )
     
-
-    st.subheader(f'Results for: {topic}')
+    context = ""
+    if results['documents'] and len(results['documents'][0]) > 0:
+        context = "\n\n---\n\n".join(results['documents'][0])
+        sources = results['ids'][0]
+        
+        context_message = f"""
+        Use the following context from course materials to answer the question. If the answer is in this context, make sure to say "Based on the course materials..." 
+        
+        Context:
+        {context}
+        
+        Sources: {', '.join(sources)}
+        """
+        
+        st.session_state.messages.insert(-1, {"role": "system", "content": context_message})
     
-    for i in range(len(results['documents'][0])):
-        doc = results['documents'][0][i]
-        doc_id = results['ids'][0][i]
-        
-        st.write(f'**{i+1}. {doc_id}**')
-        
-else:
-    st.info('Enter a topic in the sidebar to search the collection')
-
-
-#### IMPLEMENT YOUR CHATBOT HERE (Part B) ####
+    apply_buffer()
+    
+    stream = client.chat.completions.create(
+        model=model_to_use,
+        messages=st.session_state.messages,
+        stream=True
+    )
+    
+    with st.chat_message("assistant"):
+        response_text = st.write_stream(stream)
+    
+    st.session_state.messages.append({"role": "assistant", "content": response_text})
+    
+  
+    st.session_state.messages = [
+        msg for msg in st.session_state.messages 
+        if not (msg["role"] == "system" and "Context:" in msg["content"])
+    ]
+    
+    apply_buffer()
