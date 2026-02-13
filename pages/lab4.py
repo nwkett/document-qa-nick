@@ -50,7 +50,8 @@ def add_to_collection(collection, text, file_name):
 
 
 def load_pdfs_to_collection(folder_path, collection):
-
+    """Load all PDFs from folder into the collection"""
+    # Check if collection is empty and load PDFs
     if collection.count() == 0:
         pdf_files = list(Path(folder_path).glob("*.pdf"))
         
@@ -58,29 +59,20 @@ def load_pdfs_to_collection(folder_path, collection):
             st.warning(f"No PDF files found in {folder_path}")
             return False
         
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-        
-        for idx, pdf_path in enumerate(pdf_files):
-            status_text.text(f"Loading {pdf_path.name}...")
-            
+        for pdf_path in pdf_files:
             # Extract text from PDF
             text = extract_text_from_pdf(pdf_path)
             
             if text:
                 # Add to collection
                 add_to_collection(collection, text, pdf_path.name)
-            
-            # Update progress
-            progress_bar.progress((idx + 1) / len(pdf_files))
         
-        progress_bar.empty()
-        status_text.empty()
         st.success(f"✅ Successfully loaded {len(pdf_files)} PDF files into ChromaDB")
         return True
     else:
         st.info(f"Collection already contains {collection.count()} documents")
         return True
+
 
 
 
