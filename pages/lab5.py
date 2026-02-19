@@ -129,7 +129,6 @@ if get_advice_btn:
             col2.metric("Feels Like",        f"{weather_data['feels_like']}°")
             col3.metric("Humidity",           f"{weather_data['humidity']}%")
             st.caption(
-                f"Conditions: {weather_data['description'].title()} | "
                 f"Low: {weather_data['temp_min']}°, High: {weather_data['temp_max']}°"
             )
 
