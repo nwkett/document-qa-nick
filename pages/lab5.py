@@ -38,8 +38,8 @@ test_cities = ['Syracuse, NY, US', 'Lima, Peru']
 for city in test_cities:
     try:
         result = get_current_weather(city, api_key)
-        print(f"\nWeather for {city}:")
+        st.write(f"\nWeather for {city}:")
         for key, value in result.items():
-            print(f"  {key}: {value}")
+            st.write(f"  {key}: {value}")
     except Exception as e:
-        print(f"\nError for {city}: {e}")
+        st.write(f"\nError for {city}: {e}")
