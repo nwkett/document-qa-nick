@@ -124,13 +124,13 @@ if get_advice_btn:
                 st.stop()
 
             st.subheader(f"Current Weather in {weather_data['location']}")
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4, col5 = st.columns(5)
             col1.metric("Temperature (F)", f"{weather_data['temperature']}°")
-            col2.metric("Feels Like",        f"{weather_data['feels_like']}°")
-            col3.metric("Humidity",           f"{weather_data['humidity']}%")
-            st.caption(
-                f"Low: {weather_data['temp_min']}°, High: {weather_data['temp_max']}°"
-            )
+            col2.metric("Feels Like", f"{weather_data['feels_like']}°")
+            col3.metric("Humidity", f"{weather_data['humidity']}%")
+            col4.metric("Low", f"{weather_data['temp_min']}°")
+            col5.metric("High", f"{weather_data['temp_max']}°")
+            
 
             messages.append({
                 "role": "tool",
