@@ -1,5 +1,8 @@
 import requests
 import streamlit as st
+import json
+from openai import OpenAI
+
 # location in form City, State, Country
 # e.g., Syracuse, NY, US
 # default units is degrees Fahrenheit
@@ -31,15 +34,101 @@ def get_current_weather(location, api_key, units='imperial'):
     'humidity': round(humidity, 2)
     }
 
-api_key = st.secrets["WEATHER_KEY"]
 
-test_cities = ['Syracuse, NY, US', 'Lima, Peru']
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_weather",
+            "description": (
+                "Get the current weather for a given city. "
+                "Use 'Syracuse, NY, US' if no location is provided."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "City name, e.g. 'Syracuse, NY, US' or 'Lima, Peru'",
+                    }
+                },
+                "required": ["location"],
+            },
+        },
+    }
+]
 
-for city in test_cities:
-    try:
-        result = get_current_weather(city, api_key)
-        st.write(f"\nWeather for {city}:")
-        for key, value in result.items():
-            st.write(f"  {key}: {value}")
-    except Exception as e:
-        st.write(f"\nError for {city}: {e}")
+openai_api_key = st.secrets.get("OPENAI_API_KEY")
+weather_api_key = st.secrets.get("WEATHER_KEY")
+
+if not openai_api_key or not weather_api_key:
+    st.error("Missing API keys.")
+    st.stop()
+
+client = OpenAI(api_key=openai_api_key)
+
+# Sidebar
+
+st.sidebar.title("Weather bot")
+city_input = st.sidebar.text_input(
+    "Enter a city:",
+    placeholder = "Syracuse, NY, US"
+)
+
+get_advice_btn = st.sidebar.button("Get Clothes Advice")
+
+# Main
+
+st.title ("Nick's Weather Bot for Lab 5")
+
+
+if get_advice_btn:
+    model_name   = "gpt-4o"
+    user_location = city_input.strip() if city_input.strip() else "Syracuse, NY, US"
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful advisor that makes suggestions based on weather "
+                "When given weather data, suggest appropriate clothing and "
+                "outdoor activities for that day."
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"What should I wear today in {user_location}? Also suggest some outdoor activities.",
+        },
+    ]
+
+    response = client.chat.completions.create(
+        model = model_name,
+        messages = messages,
+        tools=tools,
+        tool_choice = auto
+    )
+
+    response_message = response.choices[0].message
+    tool_calls = response_message.tool_calls
+
+    if tool_calls:
+        messages.append(response_message)
+
+        for tool_call in tool_calls:
+            args= json.loads(tool_call.function.arguments)
+            location = args.get("location", "Syracuse, NY, US")
+
+        try:
+            weather_data = get_current_weather(location, weather_api_key)
+        except Exception as e:
+            st.error(f"Weather lookup failed: {e}")
+            st.stop()
+
+        st.subheader(f"Current Weather in {weather_data['location']}")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Temperature (F)", f"{weather_data['temperature']}°")
+        col2.metric("Feels Like",        f"{weather_data['feels_like']}°")
+        col3.metric("Humidity",           f"{weather_data['humidity']}%")
+        st.caption(
+            f"Conditions: {weather_data['description'].title()} | "
+            f"Low: {weather_data['temp_min']}°, High: {weather_data['temp_max']}°"
+        )
