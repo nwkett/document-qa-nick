@@ -1,4 +1,5 @@
 import requests
+import streamlit as st
 # location in form City, State, Country
 # e.g., Syracuse, NY, US
 # default units is degrees Fahrenheit
@@ -30,3 +31,15 @@ def get_current_weather(location, api_key, units='imperial'):
     'humidity': round(humidity, 2)
     }
 
+api_key = st.secrets["WEATHER_KEY"]
+
+test_cities = ['Syracuse, NY, US', 'Lima, Peru']
+
+for city in test_cities:
+    try:
+        result = get_current_weather(city, api_key)
+        print(f"\nWeather for {city}:")
+        for key, value in result.items():
+            print(f"  {key}: {value}")
+    except Exception as e:
+        print(f"\nError for {city}: {e}")
