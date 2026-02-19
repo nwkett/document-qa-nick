@@ -104,7 +104,7 @@ if get_advice_btn:
         model = model_name,
         messages = messages,
         tools=tools,
-        tool_choice = auto
+        tool_choice = "auto"
     )
 
     response_message = response.choices[0].message
@@ -117,18 +117,35 @@ if get_advice_btn:
             args= json.loads(tool_call.function.arguments)
             location = args.get("location", "Syracuse, NY, US")
 
-        try:
-            weather_data = get_current_weather(location, weather_api_key)
-        except Exception as e:
-            st.error(f"Weather lookup failed: {e}")
-            st.stop()
+            try:
+                weather_data = get_current_weather(location, weather_api_key)
+            except Exception as e:
+                st.error(f"Weather lookup failed: {e}")
+                st.stop()
 
-        st.subheader(f"Current Weather in {weather_data['location']}")
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Temperature (F)", f"{weather_data['temperature']}°")
-        col2.metric("Feels Like",        f"{weather_data['feels_like']}°")
-        col3.metric("Humidity",           f"{weather_data['humidity']}%")
-        st.caption(
-            f"Conditions: {weather_data['description'].title()} | "
-            f"Low: {weather_data['temp_min']}°, High: {weather_data['temp_max']}°"
+            st.subheader(f"Current Weather in {weather_data['location']}")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Temperature (F)", f"{weather_data['temperature']}°")
+            col2.metric("Feels Like",        f"{weather_data['feels_like']}°")
+            col3.metric("Humidity",           f"{weather_data['humidity']}%")
+            st.caption(
+                f"Conditions: {weather_data['description'].title()} | "
+                f"Low: {weather_data['temp_min']}°, High: {weather_data['temp_max']}°"
+            )
+
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(weather_data),
+            })
+
+        st.subheader("Today's Clothing Advice")
+        stream = client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            stream=True,
         )
+        st.write_stream(stream)
+
+    else:
+        st.write(response_message.content)
