@@ -10,7 +10,9 @@ pg = st.navigation(
         st.Page("pages/lab3.py", title="Lab 3", icon="2️⃣"),
         st.Page("pages/lab4.py", title="Lab 4", icon="2️⃣"),
         st.Page("pages/lab5.py", title="Lab 5", icon="2️⃣"),
-        st.Page("pages/lab6.py", title="Lab 6", icon="2️⃣", default=True),
+        st.Page("pages/lab6.py", title="Lab 6", icon="2️⃣"),
+        st.Page("pages/testlab.py", title="test lab", icon="2️⃣", default=True),
+
 
     ]
 )
