@@ -3,7 +3,7 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents import create_react_agent, AgentExecutor
-from langchain import hub
+from langchain.prompts import PromptTemplate
 
 st.set_page_config(page_title="Lab 5 - LangChain Agent")
 st.title("LangChain Web Search Agent")
@@ -19,7 +19,22 @@ if "messages" not in st.session_state:
 def get_agent():
     tools = [DuckDuckGoSearchRun()]
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
-    prompt = hub.pull("hwchase17/react")
+    prompt = PromptTemplate.from_template(
+        "Answer the following questions as best you can. You have access to the following tools:\n\n"
+        "{tools}\n\n"
+        "Use the following format:\n"
+        "Question: the input question you must answer\n"
+        "Thought: you should always think about what to do\n"
+        "Action: the action to take, should be one of [{tool_names}]\n"
+        "Action Input: the input to the action\n"
+        "Observation: the result of the action\n"
+        "... (this Thought/Action/Action Input/Observation can repeat N times)\n"
+        "Thought: I now know the final answer\n"
+        "Final Answer: the final answer to the original input question\n\n"
+        "Begin!\n\n"
+        "Question: {input}\n"
+        "Thought:{agent_scratchpad}"
+    )
     agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
     return AgentExecutor(agent=agent, tools=tools, handle_parsing_errors=True)
 

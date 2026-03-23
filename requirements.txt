@@ -5,7 +5,9 @@ PyPDF2
 pymupdf
 pysqlite3-binary
 protobuf==3.20
-
-langchain_openai
-langchain_community
 langchain
+langchain-openai
+langchain-community
+duckduckgo-search
+langchain-hub
+langsmith
