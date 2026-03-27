@@ -13,8 +13,7 @@ class ResearchSummary(BaseModel):
 structured_mode = st.sidebar.checkbox("Return structured summary")
 streaming_mode = st.sidebar.checkbox("Enable streaming")
 
-st.title("Research Agent")
-st.caption("Web Search")
+st.title("Lab 6")
 
 user_input = st.text_input("Ask a question:")
 
