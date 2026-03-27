@@ -23,7 +23,7 @@ if user_input:
         response = client.responses.parse(
             model="gpt-4o",
             instructions="You are a helpful research assistant. Cite your sources.",
-            input=user_input
+            input=user_input,
             tools=[{"type": "web_search_preview"}],
             previous_response_id=st.session_state.get("last_response_id"),
             text_format=ResearchSummary,
