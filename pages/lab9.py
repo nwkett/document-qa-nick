@@ -25,7 +25,7 @@ if memories:
     for m in memories:
         st.sidebar.write(f"- {m}")
 else:
-    st.sidebar.write("No memories yet. Start chatting!")
+    st.sidebar.write("No memories yet")
  
 if st.sidebar.button("Clear All Memories"):
     save_memories([])
